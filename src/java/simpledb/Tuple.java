@@ -11,7 +11,44 @@ import java.util.Iterator;
  */
 public class Tuple implements Serializable {
 
+    public static class FieldList implements Iterator<Field>{
+
+        private Field[] fields;
+        private int iterationIndex;
+        public FieldList(int size) {
+            this.fields = new Field[size];
+            this.iterationIndex = 0;
+        }
+
+        public void set(int i,Field field){
+            fields[i] = field;
+        }
+
+        public Field get(int i){
+            return fields[i];
+        }
+
+        public boolean hasNext(){
+            return iterationIndex<fields.length;
+        }
+        public Field next(){
+            if(iterationIndex>=fields.length){
+                throw new NoSuchElementException("No such element, out of bound")
+            }
+            // pay attention to the action in finally
+            try{
+                return fields[iterationIndex];
+            }finally {
+                iterationIndex++;
+            }
+        }
+    }
+
     private static final long serialVersionUID = 1L;
+
+    private TupleDesc tupleDesc;
+    private RecordId recordId;
+    private FieldList fieldList;
 
     /**
      * Create a new tuple with the specified schema (type).
@@ -22,6 +59,8 @@ public class Tuple implements Serializable {
      */
     public Tuple(TupleDesc td) {
         // some code goes here
+        this.tupleDesc = td;
+        this.fieldList = new FieldList(tupleDesc.numFields());
     }
 
     /**
@@ -29,7 +68,7 @@ public class Tuple implements Serializable {
      */
     public TupleDesc getTupleDesc() {
         // some code goes here
-        return null;
+        return tupleDesc;
     }
 
     /**
@@ -38,7 +77,7 @@ public class Tuple implements Serializable {
      */
     public RecordId getRecordId() {
         // some code goes here
-        return null;
+        return recordId;
     }
 
     /**
@@ -49,6 +88,7 @@ public class Tuple implements Serializable {
      */
     public void setRecordId(RecordId rid) {
         // some code goes here
+        this.recordId = rid;
     }
 
     /**
@@ -61,6 +101,7 @@ public class Tuple implements Serializable {
      */
     public void setField(int i, Field f) {
         // some code goes here
+        fieldList.set(i,f);
     }
 
     /**
@@ -71,7 +112,7 @@ public class Tuple implements Serializable {
      */
     public Field getField(int i) {
         // some code goes here
-        return null;
+        return fieldList.get()
     }
 
     /**
@@ -103,5 +144,7 @@ public class Tuple implements Serializable {
     public void resetTupleDesc(TupleDesc td)
     {
         // some code goes here
+        // why this action just affect the tupledescribtion
+        this.tupleDesc = td;
     }
 }

@@ -101,6 +101,21 @@ public class SeqScan implements OpIterator {
      */
     public TupleDesc getTupleDesc() {
         // some code goes here
+        TupleDesc td = Database.getCatalog().getTupleDesc(tableId);
+        Type[] types = new Type[td.numFields()];
+        String[] fields = new String[td.numFields()];
+        String prefix = "null";
+        if(tableAlias!=null){
+            prefix = tableAlias;
+        }
+        for(int i = 0;i<td.numFields();i++){
+            types[i] = td.getFieldType(i);
+            fields[i] = td.getFieldName(i);
+            if(fields[i]==null){
+                fields[i] = "null";
+            }
+            fields[i] = prefix+"."+fields[i];
+        }
         return Database.getCatalog().getTupleDesc(tableId);
     }
 

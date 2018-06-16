@@ -117,15 +117,27 @@ public class SystemTestUtil {
                 Debug.log("\t" + Utility.listToString(t));
             }
         }
-
+        // open iterator operator
         iterator.open();
+        System.out.println("the copy is"+copy);
+        int size = tuples.size();
+        int i = 0;
         while (iterator.hasNext()) {
             Tuple t = iterator.next();
+            if(size==i+1){
+                System.out.println("Before remove the last element, the copy is "+copy);
+            }
             ArrayList<Integer> list = tupleToList(t);
             boolean isExpected = copy.remove(list);
             Debug.log("scanned tuple: %s (%s)", t, isExpected ? "expected" : "not expected");
             if (!isExpected) {
+                System.out.println("Now the copy is "+copy);
+                System.out.println("expected list is "+list+" the id is "+i);
                 Assert.fail("expected tuples does not contain: " + t);
+            }
+            i++;
+            if(i==1022){
+                System.out.println("");
             }
         }
         iterator.close();

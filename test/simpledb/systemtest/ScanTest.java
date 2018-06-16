@@ -29,6 +29,7 @@ public class ScanTest extends SimpleDbTestBase {
             for (int rows : rowSizes) {
                 ArrayList<ArrayList<Integer>> tuples = new ArrayList<ArrayList<Integer>>();
                 HeapFile f = SystemTestUtil.createRandomHeapFile(columns, rows, null, tuples);
+                System.out.println("The column size is "+columns+" the row size is "+rows);
                 SystemTestUtil.matchTuples(f, tuples);
                 Database.resetBufferPool(BufferPool.DEFAULT_PAGES);
             }
@@ -39,7 +40,7 @@ public class ScanTest extends SimpleDbTestBase {
     @Test public void testSmall() throws IOException, DbException, TransactionAbortedException {
         int[] columnSizes = new int[]{1, 2, 3, 4};
         int[] rowSizes =
-                new int[]{0, 1, 2, 511, 512, 513, 1023, 1024, 1025, 4096 + r.nextInt(4096)};
+                new int[]{0, 1, 2, 511, 512, 513, 992,1023, 1024, 1025, 4096 + r.nextInt(4096)};
         validateScan(columnSizes, rowSizes);
     }
 

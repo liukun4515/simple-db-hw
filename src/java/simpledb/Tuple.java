@@ -3,6 +3,7 @@ package simpledb;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * Tuple maintains information about the contents of a tuple. Tuples have a
@@ -10,6 +11,21 @@ import java.util.Iterator;
  * with the data for each field.
  */
 public class Tuple implements Serializable {
+
+    /**
+     * Returns the contents of this Tuple as a string. Note that to pass the
+     * system tests, the format needs to be as follows:
+     * <p>
+     * column1\tcolumn2\tcolumn3\t...\tcolumnN
+     * <p>
+     * where \t is any whitespace (except a newline)
+     */
+    @Override
+    public String toString() {
+        return "Tuple{" +
+                "fieldList=" + fieldList +
+                '}';
+    }
 
     public static class FieldList implements Iterator<Field>{
 
@@ -33,7 +49,7 @@ public class Tuple implements Serializable {
         }
         public Field next(){
             if(iterationIndex>=fields.length){
-                throw new NoSuchElementException("No such element, out of bound")
+                throw new NoSuchElementException("No such element, out of bound");
             }
             // pay attention to the action in finally
             try{
@@ -112,20 +128,7 @@ public class Tuple implements Serializable {
      */
     public Field getField(int i) {
         // some code goes here
-        return fieldList.get()
-    }
-
-    /**
-     * Returns the contents of this Tuple as a string. Note that to pass the
-     * system tests, the format needs to be as follows:
-     *
-     * column1\tcolumn2\tcolumn3\t...\tcolumnN
-     *
-     * where \t is any whitespace (except a newline)
-     */
-    public String toString() {
-        // some code goes here
-        throw new UnsupportedOperationException("Implement this");
+        return fieldList.get(i);
     }
 
     /**

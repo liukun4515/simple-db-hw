@@ -1,15 +1,15 @@
 package simpledb;
 
-import simpledb.systemtest.SimpleDbTestBase;
-import simpledb.systemtest.SystemTestUtil;
-
-import java.util.*;
+import junit.framework.JUnit4TestAdapter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import simpledb.systemtest.SimpleDbTestBase;
+import simpledb.systemtest.SystemTestUtil;
+
+import java.util.NoSuchElementException;
 
 import static org.junit.Assert.*;
-import junit.framework.JUnit4TestAdapter;
 
 public class HeapFileReadTest extends SimpleDbTestBase {
     private HeapFile hf;
@@ -50,9 +50,10 @@ public class HeapFileReadTest extends SimpleDbTestBase {
      * Unit test for HeapFile.getTupleDesc()
      */
     @Test
-    public void getTupleDesc() throws Exception {    	
-        assertEquals(td, hf.getTupleDesc());        
+    public void getTupleDesc() throws Exception {
+        assertEquals(td, hf.getTupleDesc());
     }
+
     /**
      * Unit test for HeapFile.numPages()
      */
@@ -75,6 +76,36 @@ public class HeapFileReadTest extends SimpleDbTestBase {
         assertEquals(484, page.getNumEmptySlots());
         assertTrue(page.isSlotUsed(1));
         assertFalse(page.isSlotUsed(20));
+    }
+    @Test
+    public void testIteratorMorePage() throws Exception {
+        HeapFile bigFile = SystemTestUtil.createRandomHeapFile(2, 4000, null, null);
+        DbFileIterator it = bigFile.iterator(tid);
+        int count = 0;
+        it.open();
+        while (it.hasNext()) {
+            count++;
+            it.next();
+        }
+        assertEquals(4000, count);
+        it.close();
+    }
+    @Test
+    public void testIteratorRewind() throws Exception {
+        HeapFile bigFile =  SystemTestUtil.createRandomHeapFile(2,4000,null,null);
+        DbFileIterator it = bigFile.iterator(tid);
+        int count = 0;
+        it.open();
+        while(it.hasNext()){
+            it.next();
+        }
+        it.rewind();
+        while(it.hasNext()){
+            count++;
+            it.next();
+        }
+        assertEquals(4000,count);
+        it.close();
     }
 
     @Test
@@ -113,6 +144,7 @@ public class HeapFileReadTest extends SimpleDbTestBase {
         assertTrue(it.hasNext());
         it.close();
         try {
+            // try to read after closed
             it.next();
             fail("expected exception");
         } catch (NoSuchElementException e) {

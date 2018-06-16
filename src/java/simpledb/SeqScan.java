@@ -11,6 +11,13 @@ public class SeqScan implements OpIterator {
 
     private static final long serialVersionUID = 1L;
 
+    private TransactionId tid;
+    private int tableId;
+    private String tableAlias;
+    private boolean isOpen;
+    private DbFileIterator dbFileIterator;
+    private Tuple tuple;
+
     /**
      * Creates a sequential scan over the specified table as a part of the
      * specified transaction.
@@ -29,6 +36,9 @@ public class SeqScan implements OpIterator {
      */
     public SeqScan(TransactionId tid, int tableid, String tableAlias) {
         // some code goes here
+        this.tid = tid;
+        this.tableId = tableid;
+        this.tableAlias = tableAlias;
     }
 
     /**
@@ -37,7 +47,7 @@ public class SeqScan implements OpIterator {
      *       be the actual name of the table in the catalog of the database
      * */
     public String getTableName() {
-        return null;
+        return Database.getCatalog().getTableName(tableId);
     }
 
     /**
@@ -46,7 +56,7 @@ public class SeqScan implements OpIterator {
     public String getAlias()
     {
         // some code goes here
-        return null;
+        return tableAlias;
     }
 
     /**
@@ -63,6 +73,8 @@ public class SeqScan implements OpIterator {
      */
     public void reset(int tableid, String tableAlias) {
         // some code goes here
+        this.tableId = tableid;
+        this.tableAlias = tableAlias;
     }
 
     public SeqScan(TransactionId tid, int tableId) {
@@ -71,6 +83,10 @@ public class SeqScan implements OpIterator {
 
     public void open() throws DbException, TransactionAbortedException {
         // some code goes here
+        checkOpen();
+        this.isOpen = true;
+        dbFileIterator = Database.getCatalog().getDatabaseFile(tableId).iterator(tid);
+        dbFileIterator.open();
     }
 
     /**
@@ -85,26 +101,63 @@ public class SeqScan implements OpIterator {
      */
     public TupleDesc getTupleDesc() {
         // some code goes here
-        return null;
+        return Database.getCatalog().getTupleDesc(tableId);
     }
 
     public boolean hasNext() throws TransactionAbortedException, DbException {
         // some code goes here
-        return false;
+        checkNotOpen();
+        if(tuple==null){
+            try {
+                tuple = next();
+            }catch (NoSuchElementException e){
+                tuple = null;
+            }
+        }
+        return tuple!=null;
     }
 
     public Tuple next() throws NoSuchElementException,
             TransactionAbortedException, DbException {
         // some code goes here
-        return null;
+        checkNotOpen();
+        if(tuple==null){
+            if(dbFileIterator.hasNext()){
+                tuple = dbFileIterator.next();
+            }else{
+                throw new NoSuchElementException("The next tuple does not exist.");
+            }
+        }
+        Tuple temp = tuple;
+        tuple = null;
+        return temp;
     }
 
     public void close() {
         // some code goes here
+        checkNotOpen();
+        this.isOpen = false;
+        dbFileIterator.close();
     }
 
     public void rewind() throws DbException, NoSuchElementException,
             TransactionAbortedException {
         // some code goes here
+        checkNotOpen();
+        close();
+        open();
     }
+
+    private void checkNotOpen(){
+        if(!isOpen){
+            throw new IllegalStateException("The scan operator has not been opened.");
+        }
+    }
+
+    private void checkOpen(){
+        if(isOpen){
+            throw new IllegalStateException("The scan operator has been opened.");
+        }
+    }
+
 }

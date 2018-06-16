@@ -78,4 +78,8 @@ public class Database {
         _instance.set(new Database());
     }
 
+    public static void main(String[] args) {
+        Database.getBufferPool();
+    }
+
 }

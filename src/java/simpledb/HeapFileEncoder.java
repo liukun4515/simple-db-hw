@@ -95,10 +95,13 @@ public class HeapFileEncoder {
       for (int i = 0; i < numFields ; i++) {
           nrecbytes += typeAr[i].getLen();
       }
+      // 一个page中能够完整存储的record的数目，表示504个record
       int nrecords = (npagebytes * 8) /  (nrecbytes * 8 + 1);  //floor comes for free
-      
+
     //  per record, we need one bit; there are nrecords per page, so we need
     // nrecords bits, i.e., ((nrecords/32)+1) integers.
+
+      // 504/8 = 63 个
     int nheaderbytes = (nrecords / 8);
     if (nheaderbytes * 8 < nrecords)
         nheaderbytes++;  //ceiling
@@ -124,7 +127,7 @@ public class HeapFileEncoder {
     boolean first = true;
     while (!done) {
         int c = br.read();
-        
+
         // Ignore Windows/Notepad special line endings
         if (c == '\r')
             continue;
@@ -162,15 +165,15 @@ public class HeapFileEncoder {
                 fieldNo = 0;
             else
                 fieldNo++;
-            
+
         } else if (c == -1) {
             done = true;
-            
+
         } else {
             buf[curpos++] = (char)c;
             continue;
         }
-        
+
         // if we wrote a full page of records, or if we're done altogether,
         // write out the header of the page.
         //
@@ -185,37 +188,37 @@ public class HeapFileEncoder {
             || done && npages == 0) {
             int i = 0;
             byte headerbyte = 0;
-            
+
             for (i=0; i<nheaderbits; i++) {
                 if (i < recordcount)
                     headerbyte |= (1 << (i % 8));
-                
+
                 if (((i+1) % 8) == 0) {
                     headerStream.writeByte(headerbyte);
                     headerbyte = 0;
                 }
             }
-            
+
             if (i % 8 > 0)
                 headerStream.writeByte(headerbyte);
-            
+
             // pad the rest of the page with zeroes
-            
+            // append the zeroes to the rest of the page
             for (i=0; i<(npagebytes - (recordcount * nrecbytes + nheaderbytes)); i++)
                 pageStream.writeByte(0);
-            
+
             // write header and body to file
             headerStream.flush();
             headerBAOS.writeTo(os);
             pageStream.flush();
             pageBAOS.writeTo(os);
-            
+
             // reset header and body for next page
             headerBAOS = new ByteArrayOutputStream(nheaderbytes);
             headerStream = new DataOutputStream(headerBAOS);
             pageBAOS = new ByteArrayOutputStream(npagebytes);
             pageStream = new DataOutputStream(pageBAOS);
-            
+
             recordcount = 0;
             npages++;
         }

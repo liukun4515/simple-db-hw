@@ -6,6 +6,13 @@ import java.util.UUID;
 
 /** Helper methods used for testing and implementing random features. */
 public class Utility {
+
+    public static void checkNotNull(Object o){
+        if(o==null){
+            throw new DbIllegalExeception("The object is null");
+        }
+    }
+
     /**
      * @return a Type array of length len populated with Type.INT_TYPE
      */

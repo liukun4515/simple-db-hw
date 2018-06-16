@@ -36,7 +36,7 @@ public class Catalog {
         this.tableIdTopkey = new HashMap<Integer,String>();
         this.tableIdToFile = new HashMap<Integer,DbFile>();
         this.tableIdToName = new HashMap<Integer,String>();
-        this.tableIdToDesc = new HashMap<Integer,tableIdToDesc>();
+        this.tableIdToDesc = new HashMap<Integer,TupleDesc>();
     }
 
     /**
@@ -95,7 +95,7 @@ public class Catalog {
         // some code goes here
         TupleDesc tupleDesc = tableIdToDesc.get(tableid);
         if(tupleDesc==null){
-            return new NoSuchElementExeception("No such table");
+            throw new NoSuchElementException("No such table");
         }
         return tupleDesc;
     }
@@ -110,7 +110,7 @@ public class Catalog {
         // some code goes here
         DbFile file = tableIdToFile.get(tableid);
         if(file==null){
-            return new NoSuchElementExeception("No such table");
+            throw new NoSuchElementException("No such table");
         }
         return file;
     }
@@ -119,7 +119,7 @@ public class Catalog {
         // some code goes here
         String pkey = tableIdTopkey.get(tableid);
         if(pkey==null){
-            return new NoSuchElementExeception("No such table");
+            throw new NoSuchElementException("No such table");
         }
         return pkey;
     }

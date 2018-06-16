@@ -3,6 +3,11 @@ package simpledb;
 /** Unique identifier for HeapPage objects. */
 public class HeapPageId implements PageId {
 
+    /** The table id which this page belongs to*/
+    private int tableId;
+    /** The identifier for the page in the specific table*/
+    private int pageNo;
+
     /**
      * Constructor. Create a page id structure for a specific page of a
      * specific table.
@@ -12,12 +17,14 @@ public class HeapPageId implements PageId {
      */
     public HeapPageId(int tableId, int pgNo) {
         // some code goes here
+        this.tableId = tableId;
+        this.pageNo = pgNo;
     }
 
     /** @return the table associated with this PageId */
     public int getTableId() {
         // some code goes here
-        return 0;
+        return tableId;
     }
 
     /**
@@ -26,30 +33,7 @@ public class HeapPageId implements PageId {
      */
     public int getPageNumber() {
         // some code goes here
-        return 0;
-    }
-
-    /**
-     * @return a hash code for this page, represented by the concatenation of
-     *   the table number and the page number (needed if a PageId is used as a
-     *   key in a hash table in the BufferPool, for example.)
-     * @see BufferPool
-     */
-    public int hashCode() {
-        // some code goes here
-        throw new UnsupportedOperationException("implement this");
-    }
-
-    /**
-     * Compares one PageId to another.
-     *
-     * @param o The object to compare against (must be a PageId)
-     * @return true if the objects are equal (e.g., page numbers and table
-     *   ids are the same)
-     */
-    public boolean equals(Object o) {
-        // some code goes here
-        return false;
+        return pageNo;
     }
 
     /**
@@ -67,4 +51,21 @@ public class HeapPageId implements PageId {
         return data;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        HeapPageId that = (HeapPageId) o;
+
+        if (tableId != that.tableId) return false;
+        return pageNo == that.pageNo;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = tableId;
+        result = 31 * result + pageNo;
+        return result;
+    }
 }

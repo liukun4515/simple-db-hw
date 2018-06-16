@@ -13,14 +13,12 @@ public class HeapFileIterator extends AbstractDbFileIterator {
     private TransactionId tid;
     private Iterator<Tuple> it;
     private int pageNum;
-    private int maxPageNum;
     /** If the closed is true, it represents the iterator can't be used and the readNext method returns null when called*/
     private boolean closed;
     public HeapFileIterator(HeapFile file, TransactionId tid) {
         this.file = file;
         this.tid = tid;
         this.closed = true;
-        this.maxPageNum = (int) (file.getFile().length()/Database.getBufferPool().getPageSize());
     }
 
     /**

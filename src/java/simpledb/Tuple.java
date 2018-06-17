@@ -23,48 +23,16 @@ public class Tuple implements Serializable {
     @Override
     public String toString() {
         return "Tuple{" +
-                "fieldList=" + fieldList +
+                "fields=" + Arrays.toString(fields) +
                 '}';
     }
 
-    public static class FieldList implements Iterator<Field>{
-
-        private Field[] fields;
-        private int iterationIndex;
-        public FieldList(int size) {
-            this.fields = new Field[size];
-            this.iterationIndex = 0;
-        }
-
-        public void set(int i,Field field){
-            fields[i] = field;
-        }
-
-        public Field get(int i){
-            return fields[i];
-        }
-
-        public boolean hasNext(){
-            return iterationIndex<fields.length;
-        }
-        public Field next(){
-            if(iterationIndex>=fields.length){
-                throw new NoSuchElementException("No such element, out of bound");
-            }
-            // pay attention to the action in finally
-            try{
-                return fields[iterationIndex];
-            }finally {
-                iterationIndex++;
-            }
-        }
-    }
 
     private static final long serialVersionUID = 1L;
 
     private TupleDesc tupleDesc;
     private RecordId recordId;
-    private FieldList fieldList;
+    private Field[] fields;
 
     /**
      * Create a new tuple with the specified schema (type).
@@ -76,7 +44,7 @@ public class Tuple implements Serializable {
     public Tuple(TupleDesc td) {
         // some code goes here
         this.tupleDesc = td;
-        this.fieldList = new FieldList(tupleDesc.numFields());
+        this.fields = new Field[tupleDesc.numFields()];
     }
 
     /**
@@ -117,7 +85,8 @@ public class Tuple implements Serializable {
      */
     public void setField(int i, Field f) {
         // some code goes here
-        fieldList.set(i,f);
+        fields[i] = f;
+        fields[i] = f;
     }
 
     /**
@@ -128,7 +97,7 @@ public class Tuple implements Serializable {
      */
     public Field getField(int i) {
         // some code goes here
-        return fieldList.get(i);
+        return fields[i];
     }
 
     /**
@@ -138,7 +107,7 @@ public class Tuple implements Serializable {
     public Iterator<Field> fields()
     {
         // some code goes here
-        return null;
+        return Arrays.asList(fields).iterator();
     }
 
     /**

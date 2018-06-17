@@ -1,6 +1,7 @@
 package simpledb;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * The Join operator implements the relational join operation.
@@ -9,66 +10,84 @@ public class Join extends Operator {
 
     private static final long serialVersionUID = 1L;
 
+    private JoinPredicate joinPredicate;
+    private OpIterator left;
+    private OpIterator right;
+    private OpIterator[] children;
+    private Tuple firstTuple;
+
+
     /**
      * Constructor. Accepts two children to join and the predicate to join them
      * on
-     * 
-     * @param p
-     *            The predicate to use to join the children
-     * @param child1
-     *            Iterator for the left(outer) relation to join
-     * @param child2
-     *            Iterator for the right(inner) relation to join
+     *
+     * @param p      The predicate to use to join the children
+     * @param child1 Iterator for the left(outer) relation to join
+     * @param child2 Iterator for the right(inner) relation to join
      */
     public Join(JoinPredicate p, OpIterator child1, OpIterator child2) {
         // some code goes here
+        this.joinPredicate = p;
+        this.left = child1;
+        this.right = child2;
     }
 
     public JoinPredicate getJoinPredicate() {
         // some code goes here
-        return null;
+        return joinPredicate;
     }
 
     /**
-     * @return
-     *       the field name of join field1. Should be quantified by
-     *       alias or table name.
-     * */
+     * @return the field name of join field1. Should be quantified by
+     * alias or table name.
+     */
     public String getJoinField1Name() {
         // some code goes here
-        return null;
+        TupleDesc tupleDesc = left.getTupleDesc();
+        return tupleDesc.getFieldName(joinPredicate.getField1());
     }
 
     /**
-     * @return
-     *       the field name of join field2. Should be quantified by
-     *       alias or table name.
-     * */
+     * @return the field name of join field2. Should be quantified by
+     * alias or table name.
+     */
     public String getJoinField2Name() {
         // some code goes here
-        return null;
+        TupleDesc tupleDesc = right.getTupleDesc();
+        return tupleDesc.getFieldName(joinPredicate.getField2());
     }
 
     /**
      * @see simpledb.TupleDesc#merge(TupleDesc, TupleDesc) for possible
-     *      implementation logic.
+     * implementation logic.
      */
     public TupleDesc getTupleDesc() {
         // some code goes here
-        return null;
+        TupleDesc td1 = left.getTupleDesc();
+        TupleDesc td2 = right.getTupleDesc();
+        TupleDesc result = TupleDesc.merge(td1, td2);
+        return result;
     }
 
     public void open() throws DbException, NoSuchElementException,
             TransactionAbortedException {
         // some code goes here
+        super.open();
+        left.open();
+        right.open();
     }
 
     public void close() {
         // some code goes here
+        super.close();
+        right.close();
+        left.close();
     }
 
     public void rewind() throws DbException, TransactionAbortedException {
         // some code goes here
+        close();
+        open();
     }
 
     /**
@@ -85,24 +104,52 @@ public class Join extends Operator {
      * <p>
      * For example, if one tuple is {1,2,3} and the other tuple is {1,5,6},
      * joined on equality of the first column, then this returns {1,2,3,1,5,6}.
-     * 
+     *
      * @return The next matching tuple.
      * @see JoinPredicate#filter
      */
     protected Tuple fetchNext() throws TransactionAbortedException, DbException {
         // some code goes here
+        while (firstTuple != null || left.hasNext()) {
+            if (firstTuple == null) {
+                // Get the next left tuple, and rewind the right iterator
+                firstTuple = left.next();
+                right.rewind();
+            }
+            // right.rewind(); this is a big error.
+            while (right.hasNext()) {
+                Tuple secondTuple = right.next();
+                if (joinPredicate.filter(firstTuple, secondTuple)) {
+                    Tuple tuple = new Tuple(getTupleDesc());
+                    int index = 0;
+                    Iterator<Field> it = firstTuple.fields();
+                    while (it.hasNext()) {
+                        tuple.setField(index, it.next());
+                        index++;
+                    }
+                    it = secondTuple.fields();
+                    while (it.hasNext()) {
+                        tuple.setField(index, it.next());
+                        index++;
+                    }
+                    return tuple;
+                }
+            }
+            firstTuple = null;
+        }
         return null;
     }
 
     @Override
     public OpIterator[] getChildren() {
         // some code goes here
-        return null;
+        return children;
     }
 
     @Override
     public void setChildren(OpIterator[] children) {
         // some code goes here
+        this.children = children;
     }
 
 }

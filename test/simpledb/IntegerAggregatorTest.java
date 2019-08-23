@@ -69,12 +69,13 @@ public class IntegerAggregatorTest extends SimpleDbTestBase {
   @Test public void mergeSum() throws Exception {
     scan1.open();
     IntegerAggregator agg = new IntegerAggregator(0, Type.INT_TYPE, 1, Aggregator.Op.SUM);
-    
+
     for (int[] step : sum) {
       agg.mergeTupleIntoGroup(scan1.next());
       OpIterator it = agg.iterator();
       it.open();
       TestUtil.matchAllTuples(TestUtil.createTupleList(width1, step), it);
+      it.close();
     }
   }
 
@@ -91,6 +92,7 @@ public class IntegerAggregatorTest extends SimpleDbTestBase {
       it = agg.iterator();
       it.open();
       TestUtil.matchAllTuples(TestUtil.createTupleList(width1, step), it);
+      it.close();
     }
   }
 
@@ -107,6 +109,7 @@ public class IntegerAggregatorTest extends SimpleDbTestBase {
       it = agg.iterator();
       it.open();
       TestUtil.matchAllTuples(TestUtil.createTupleList(width1, step), it);
+      it.close();
     }
   }
 
@@ -123,6 +126,7 @@ public class IntegerAggregatorTest extends SimpleDbTestBase {
       it = agg.iterator();
       it.open();
       TestUtil.matchAllTuples(TestUtil.createTupleList(width1, step), it);
+      it.close();
     }
   }
 
